@@ -1,6 +1,13 @@
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Business.DependencyResolvers.Autofac;
+using Core.Utilities.IoC;
+using Core.Extensions;
+using Core.Utilities.Security.Encryption;
+using Core.Utilities.Security.JWT;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Core.DependencyResolvers;
 
 namespace WebAPI
 {
@@ -25,6 +32,25 @@ namespace WebAPI
                         policy.WithOrigins("http://localhost:4200/").AllowAnyHeader().AllowAnyOrigin();
                     });
             });
+
+            var tokenOptions = builder.Configuration.GetSection(key: "TokenOptions").Get<TokenOptions>();
+
+            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+               .AddJwtBearer(options =>
+               {
+                   options.TokenValidationParameters = new TokenValidationParameters
+                   {
+                       ValidateIssuer = true,
+                       ValidateAudience = true,
+                       ValidateLifetime = true,
+                       ValidIssuer = tokenOptions.Issuer,
+                       ValidAudience = tokenOptions.Audience,
+                       ValidateIssuerSigningKey = true,
+                       IssuerSigningKey = SecurityKeyHelper.CreateSecurityKey(tokenOptions.SecurityKey)
+                   };
+               });
+
+            builder.Services.AddDependencyResolvers(new ICoreModule[] { new CoreModule() });
             // Add services to the container.
 
             builder.Services.AddControllers();
@@ -39,7 +65,7 @@ namespace WebAPI
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
-            }
+            }            
 
             app.UseCors(MyAllowSpecificOrigins);
 
@@ -47,6 +73,9 @@ namespace WebAPI
 
             app.UseAuthorization();
 
+            app.UseAuthorization();
+
+            app.UseStaticFiles();
 
             app.MapControllers();
 

@@ -22,30 +22,34 @@ namespace Business.Concrete
         public IResult Add(User user)
         {
             _userDal.Add(user);
-            return new SuccessResult(Messages.UserAdded);
+            return new SuccessResult("kullanıcı eklendi");
+        }
+
+        public IResult Delete(User user)
+        {
+            _userDal.Delete(user);
+            return new SuccessResult("kullanıcı silindi");
         }
 
         public IDataResult<List<User>> GetAll()
         {
-            return new SuccessDataResult<List<User>>(_userDal.GetAll(), Messages.UserAllListed);
+            return new SuccessDataResult<List<User>>(_userDal.GetAll(), "kullanıcılar listelendi");
         }
 
-        public IDataResult<List<User>> GetById(int id)
+        public IDataResult<User> GetByMail(string email)
         {
-            foreach (var item in _userDal.GetAll())
-            {
-                if(item.Id==id)
-                {
-                    return new SuccessDataResult<List<User>>(_userDal.GetAll(u => u.Id == id), Messages.UserByIdListed);
-                }
-            }
-            return new ErrorDataResult<List<User>>(Messages.UserNotFind);
+            return new SuccessDataResult<User>(_userDal.Get(u => u.Email == email), "maile göre kullanıcı listelendi");
+        }
+
+        public IDataResult<List<OperationClaim>> GetClaims(User user)
+        {
+            return new SuccessDataResult<List<OperationClaim>>(_userDal.GetClaims(user), "claimsler geldi");
         }
 
         public IResult Update(User user)
         {
             _userDal.Update(user);
-            return new SuccessResult(Messages.UserUpdated);
+            return new SuccessResult("güncelleme yapıldı");
         }
     }
 }

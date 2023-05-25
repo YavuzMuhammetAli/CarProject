@@ -1,8 +1,11 @@
 ﻿using Business.Abstract;
 using Business.Constants;
+using Business.ValidationRules.FluentValidation;
+using Core.Aspects.Validation;
 using Core.Utilities.Results;
 using DataAccess.Abstract;
 using Entities.Concrete;
+using Entities.Concrete.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,6 +22,7 @@ namespace Business.Concrete
             _carDal = carDal;
         }
 
+        [ValidationAspect(typeof(CarValidator))]
         public IResult Add(Car car)
         {
             _carDal.Add(car);
@@ -40,6 +44,11 @@ namespace Business.Concrete
                 }
             }
             return new ErrorDataResult<List<Car>>(Messages.CarNotListed);      
+        }
+
+        public IDataResult<List<CarDetailDto>> GetCarDetail()
+        {
+            return new SuccessDataResult<List<CarDetailDto>>(_carDal.GetCarDetails(),"detaylı araba bilgisi getirilmesi gerekiyor");
         }
 
         public IResult Update(Car car)
