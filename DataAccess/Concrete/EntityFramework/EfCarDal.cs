@@ -1,7 +1,7 @@
 ﻿using Core.DataAccess.EntityFramework;
 using DataAccess.Abstract;
 using Entities.Concrete;
-using Entities.Concrete.DTOs;
+using Entities.DTOs;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System;
 using System.Collections.Generic;
@@ -31,6 +31,32 @@ namespace DataAccess.Concrete.EntityFramework
                                  Description=c.Description,
                                  BrandName=b.BrandName,
                                  ColorName=r.ColorName
+                             };
+                return result.ToList();
+            }
+        }
+
+        public List<CarFullDetailDto> GetCarFullDetails()
+        {
+            using(RentalCarsContext context = new RentalCarsContext())
+            {
+                var result = from c in context.Car
+                             join i in context.CarImages
+                             on c.Id equals i.CarId
+                             join b in context.Brand
+                             on c.BrandId equals b.Id
+                             join r in context.Color
+                             on c.ColorId equals r.Id
+                             select new CarFullDetailDto
+                             {
+                                 Id = c.Id,
+                                 ImagePath = i.ImagePath,
+                                 Description = c.Description,
+                                 BrandName = b.BrandName,
+                                 ColorName = r.ColorName,
+                                 ModelYear=c.ModelYear,
+                                 DailyPrice=c.DailyPrice
+
                              };
                 return result.ToList();
             }

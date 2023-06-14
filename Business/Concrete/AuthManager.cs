@@ -3,12 +3,14 @@ using Core.Entities.Concrete;
 using Core.Utilities.Results;
 using Core.Utilities.Security.Hashing;
 using Core.Utilities.Security.JWT;
-using Entities.Concrete.DTOs;
+using Entities.DTOs;
+using KimlikDogrulama;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static KimlikDogrulama.KPSPublicSoapClient;
 
 namespace Business.Concrete
 {
@@ -16,6 +18,7 @@ namespace Business.Concrete
     {
         private IUserService _userService;
         private ITokenHelper _tokenHelper;
+        bool Authentication;
         public AuthManager(IUserService userService, ITokenHelper tokenHelper)
         {
             _userService = userService;
@@ -58,16 +61,36 @@ namespace Business.Concrete
                 Status = true
             };
             _userService.Add(user);
+            if (!UserAuthentication(user))
+            {
+                return new ErrorDataResult<User>(user,"Kimlik doğrulaması başarısız");
+            }            
             return new SuccessDataResult<User>(user, "kayıt oldu");
         }
 
         public IResult UserExists(string email)
         {
-            if(_userService.GetByMail(email) != null)
+            if(_userService.GetByMail(email).Data != null)
             {
                 return new ErrorResult("kullanıcı mevcut");
             }
             return new SuccessResult("kayıt olundu");
+        }
+
+        public bool UserAuthentication(User user)
+        {
+            List<User> users = new List<User>();
+            users.Add(user);
+            EndpointConfiguration conf = new EndpointConfiguration();
+            KPSPublicSoapClient kps = new KPSPublicSoapClient(conf);
+            foreach (User u in users)
+            {
+                var result = kps.TCKimlikNoDogrulaAsync(Convert.ToInt64(u.TC), u.FirstName, u.LastName, u.BirthDay.Year);
+                Authentication = result.Result.Body.TCKimlikNoDogrulaResult;
+                Console.WriteLine(Authentication);
+                return Authentication;
+            }
+            return Authentication;
         }
     }
 }

@@ -1,11 +1,11 @@
 ﻿using Business.Abstract;
 using Business.Constants;
 using Business.ValidationRules.FluentValidation;
-using Core.Aspects.Validation;
+using Core.Aspects.Autofac.Validation;
 using Core.Utilities.Results;
 using DataAccess.Abstract;
 using Entities.Concrete;
-using Entities.Concrete.DTOs;
+using Entities.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -49,6 +49,11 @@ namespace Business.Concrete
         public IDataResult<List<CarDetailDto>> GetCarDetail()
         {
             return new SuccessDataResult<List<CarDetailDto>>(_carDal.GetCarDetails(),"detaylı araba bilgisi getirilmesi gerekiyor");
+        }
+
+        public IDataResult<List<CarFullDetailDto>> GetCarFullDetail()
+        {
+            return new SuccessDataResult<List<CarFullDetailDto>>(_carDal.GetCarFullDetails(), "Full detaylı araba bilgisi getirilmesi gerekiyor");
         }
 
         public IResult Update(Car car)

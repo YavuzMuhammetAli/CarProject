@@ -3,17 +3,20 @@ using Business.Constants;
 using Core.Entities.Concrete;
 using Core.Utilities.Results;
 using DataAccess.Abstract;
+using KimlikDogrulama;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static KimlikDogrulama.KPSPublicSoapClient;
 
 namespace Business.Concrete
 {
     public class UserManager : IUserService
     {
         IUserDal _userDal;
+        bool sonuc;
         public UserManager(IUserDal userDal)
         {
             _userDal = userDal;
@@ -21,6 +24,10 @@ namespace Business.Concrete
 
         public IResult Add(User user)
         {
+            if(!UserAuthentication(user))
+            {
+                return new ErrorResult("Kullanıcı kimlik bilgileri doğrulanamadı");
+            }
             _userDal.Add(user);
             return new SuccessResult("kullanıcı eklendi");
         }
@@ -50,6 +57,21 @@ namespace Business.Concrete
         {
             _userDal.Update(user);
             return new SuccessResult("güncelleme yapıldı");
+        }
+
+        public bool UserAuthentication(User user)
+        {
+            List<User> users = new List<User>();
+            users.Add(user);
+            EndpointConfiguration conf = new EndpointConfiguration();
+            KPSPublicSoapClient kps = new KPSPublicSoapClient(conf);
+            foreach (User u in users)
+            {
+                var result = kps.TCKimlikNoDogrulaAsync(Convert.ToInt64(u.TC), u.FirstName, u.LastName, u.BirthDay.Year);
+                sonuc = result.Result.Body.TCKimlikNoDogrulaResult;
+                return sonuc;
+            }
+            return sonuc;
         }
     }
 }

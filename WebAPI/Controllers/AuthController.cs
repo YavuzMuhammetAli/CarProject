@@ -1,5 +1,5 @@
 ﻿using Business.Abstract;
-using Entities.Concrete.DTOs;
+using Entities.DTOs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -25,7 +25,16 @@ namespace WebAPI.Controllers
             }
 
             var registerResult = _authService.Register(userForRegisterDto, userForRegisterDto.Password);
-            return Ok(registerResult.Message);
+            var result = _authService.CreateAccessToken(registerResult.Data);
+            if(registerResult.Success)
+            {
+                if(result.Success)
+                {
+                    return Ok(result.Data);
+                }
+                return BadRequest(result.Message);
+            }
+            return BadRequest(registerResult.Message);
         }
 
         [HttpPost("login")]
@@ -36,7 +45,13 @@ namespace WebAPI.Controllers
             {
                 return BadRequest(userToLogin.Message);
             }
-            return Ok(userToLogin.Message);
+            
+            var result =_authService.CreateAccessToken(userToLogin.Data);
+            if(result.Success)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
         }
     }
 }

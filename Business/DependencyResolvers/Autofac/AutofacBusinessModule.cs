@@ -2,6 +2,7 @@
 using Business.Abstract;
 using Business.Concrete;
 using Core.Utilities.File;
+using Core.Utilities.Security.JWT;
 using DataAccess.Abstract;
 using DataAccess.Concrete.EntityFramework;
 using System;
@@ -16,8 +17,7 @@ namespace Business.DependencyResolvers.Autofac
     {
         protected override void Load(ContainerBuilder builder)
         {
-            builder.RegisterType<AuthManager>().As<IAuthService>().SingleInstance();
-            builder.RegisterType<EfAuthDal>().As<IAuthDal>().SingleInstance();
+            builder.RegisterType<AuthManager>().As<IAuthService>();
 
             builder.RegisterType<CarManager>().As<ICarService>().SingleInstance();
             builder.RegisterType<EfCarDal>().As<ICarDal>().SingleInstance();
@@ -32,6 +32,8 @@ namespace Business.DependencyResolvers.Autofac
             builder.RegisterType<EfCarImagesDal>().As<ICarImagesDal>().SingleInstance();
 
             builder.RegisterType<FileManager>().As<IFileService>().SingleInstance();
+
+            builder.RegisterType<JwtHelper>().As<ITokenHelper>();
         }
     }
 }
