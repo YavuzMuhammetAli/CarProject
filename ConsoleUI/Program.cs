@@ -10,14 +10,13 @@ namespace ConsoleUI
         static void Main(string[] args)
         {
             CarManager car = new CarManager(new EfCarDal());
-            Console.WriteLine(car.GetAll().Message);
+            //Console.WriteLine(car.GetAll().Message);
             //foreach (var item in car.GetAll().Data)
             //{
-            //    Console.WriteLine("Marka: " + item.marka + " " + "Model: " + item.model + " " + "Vites tipi: " + 
-            //        item.vites + " " + "Yakıt tipi: " + item.yakit + " "  + "Motor tipi: " + item.motor + " " + 
+            //    Console.WriteLine("Marka: " + item.BrandId + " " + "Model: " + item.ModelYear + " " + " " + "Renk: " + item.ColorId + " "  + "Günlük ücret: " + item.DailyPrice + " " + 
             //        "Üretim yılı: " + item.yılı.Year);
             //}
-            
+
         }
     }
 }
